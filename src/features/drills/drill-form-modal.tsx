@@ -17,6 +17,13 @@ const schema = z.object({
   categoryId: z.string().min(1, 'Category is required'),
   description: z.string().min(10, 'Description is required'),
   cover: z.string().min(1, 'Cover image is required'),
+  youtubeUrl: z
+    .string()
+    .trim()
+    .refine((value) => !value || Boolean(extractYouTubeVideoId(value)), {
+      message: 'Please enter a valid YouTube URL.',
+    })
+    .optional(),
   listIcon: z.string().min(1, 'List icon is required'),
   accessLevel: z.enum(['Free', 'Premium']),
   equipment: z.array(z.object({ value: z.string() })),
@@ -65,6 +72,7 @@ export type DrillSubmitValues = Pick<
   | 'categoryId'
   | 'description'
   | 'cover'
+  | 'youtubeUrl'
   | 'listIcon'
   | 'accessLevel'
   | 'equipment'
@@ -91,6 +99,44 @@ const drillIconOptions = [
   { label: 'Shield', value: 'shield-outline' },
   { label: 'Lock', value: 'lock-closed-outline' },
 ]
+
+const youtubeIdPattern = /^[A-Za-z0-9_-]{6,}$/
+
+const extractYouTubeVideoId = (value?: string | null) => {
+  const trimmed = value?.trim()
+  if (!trimmed) return null
+
+  try {
+    const url = new URL(trimmed)
+    const hostname = url.hostname.replace(/^www\./, '').toLowerCase()
+
+    if (hostname === 'youtu.be') {
+      const videoId = url.pathname.split('/').filter(Boolean)[0]
+      return videoId && youtubeIdPattern.test(videoId) ? videoId : null
+    }
+
+    if (hostname === 'youtube.com' || hostname === 'm.youtube.com') {
+      const pathParts = url.pathname.split('/').filter(Boolean)
+      const videoId =
+        url.pathname === '/watch'
+          ? url.searchParams.get('v')
+          : pathParts[0] === 'shorts' || pathParts[0] === 'embed'
+            ? pathParts[1]
+            : null
+
+      return videoId && youtubeIdPattern.test(videoId) ? videoId : null
+    }
+  } catch {
+    return null
+  }
+
+  return null
+}
+
+const toYouTubeEmbedUrl = (value?: string | null) => {
+  const videoId = extractYouTubeVideoId(value)
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null
+}
 
 const toRows = (items?: string[]) =>
   items?.length ? items.map((value) => ({ value })) : [emptyTextRow]
@@ -129,13 +175,17 @@ export const DrillFormModal = ({
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
+    watch,
   } = useForm<DrillFormValues>({
     resolver: zodResolver(schema),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: {
       name: '',
       categoryId: '',
       description: '',
       cover: '',
+      youtubeUrl: '',
       listIcon: 'baseball-outline',
       accessLevel: 'Free',
       equipment: [emptyTextRow],
@@ -163,6 +213,7 @@ export const DrillFormModal = ({
         categoryId: initialData?.categoryId ?? defaultCategoryId,
         description: initialData?.description ?? '',
         cover: initialData?.cover ?? '',
+        youtubeUrl: initialData?.youtubeUrl ?? '',
         listIcon: initialData?.listIcon ?? 'baseball-outline',
         accessLevel: initialData?.accessLevel ?? 'Free',
         equipment: toRows(initialData?.equipment),
@@ -178,12 +229,15 @@ export const DrillFormModal = ({
       categoryId: values.categoryId,
       description: values.description.trim(),
       cover: values.cover,
+      youtubeUrl: values.youtubeUrl?.trim() || null,
       listIcon: values.listIcon,
       accessLevel: values.accessLevel,
       equipment: cleanTextRows(values.equipment),
       steps: cleanTextRows(values.steps),
       focusPoints: cleanFocusRows(values.focusPoints),
     })
+
+  const youtubePreviewUrl = toYouTubeEmbedUrl(watch('youtubeUrl'))
 
   return (
     <Modal
@@ -256,6 +310,26 @@ export const DrillFormModal = ({
             />
           )}
         />
+        <div className="space-y-3">
+          <Input
+            className="h-11 rounded-xl border-0 bg-[#efeced] text-[15px] placeholder:text-[#a6b4c8]"
+            error={errors.youtubeUrl?.message}
+            label="YouTube Video Link"
+            placeholder="Paste YouTube video link here"
+            {...register('youtubeUrl')}
+          />
+          {youtubePreviewUrl ? (
+            <div className="overflow-hidden rounded-2xl border border-brand-line bg-black">
+              <iframe
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="aspect-video w-full"
+                src={youtubePreviewUrl}
+                title="YouTube video preview"
+              />
+            </div>
+          ) : null}
+        </div>
         <Select
           className="h-11 rounded-xl border-0 bg-[#efeced] text-[15px]"
           error={errors.listIcon?.message}

@@ -22,6 +22,7 @@ export type Drill = {
   categoryId: string
   description: string
   cover: string
+  youtubeUrl?: string | null
   listIcon: string
   coverUrl?: string
   coverPhoto?: string

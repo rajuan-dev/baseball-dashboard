@@ -7,6 +7,7 @@ export type DrillPayload = Pick<
   | 'categoryId'
   | 'description'
   | 'cover'
+  | 'youtubeUrl'
   | 'listIcon'
   | 'accessLevel'
   | 'steps'
@@ -67,6 +68,7 @@ const mapDrill = (item: Record<string, unknown>): DrillRow => ({
   categoryId: toStringValue(item.categoryId),
   description: toStringValue(item.description),
   cover: toStringValue(item.cover || item.coverUrl || item.coverPhotoUrl),
+  youtubeUrl: toStringValue(item.youtubeUrl) || null,
   listIcon: toStringValue(item.listIcon) || 'baseball-outline',
   coverUrl: toStringValue(item.coverUrl),
   coverPhoto: toStringValue(item.coverPhoto),
@@ -98,6 +100,7 @@ export const drillService = {
       categoryId: payload.categoryId,
       description: payload.description,
       cover: payload.cover,
+      youtubeUrl: payload.youtubeUrl?.trim() || null,
       listIcon: payload.listIcon,
       accessLevel: payload.accessLevel.toLowerCase(),
       steps: payload.steps,
