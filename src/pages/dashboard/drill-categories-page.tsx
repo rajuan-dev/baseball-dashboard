@@ -33,7 +33,7 @@ export const DrillCategoriesPage = () => {
         ? 'locked'
         : filter.toLowerCase()
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['categories', page, accessLevel],
     queryFn: () =>
       categoryService.getPage({
@@ -204,7 +204,17 @@ export const DrillCategoriesPage = () => {
           {error}
         </div>
       ) : null}
-      <Table columns={columns} rows={rows} />
+      {isLoading ? (
+        <div className="rounded-[24px] border border-[#ebe7e0] bg-white px-6 py-12 text-center text-sm font-semibold text-brand-body shadow-[0_10px_30px_rgba(17,31,90,0.04)]">
+          Loading data...
+        </div>
+      ) : (
+        <Table
+          columns={columns}
+          emptyMessage="No drill categories found. Categories added from the dashboard will appear here."
+          rows={rows}
+        />
+      )}
       <div className="flex flex-col gap-4 rounded-b-[18px] bg-[#f7f4ef] px-6 py-4 text-sm text-[#686f80] sm:flex-row sm:items-center sm:justify-between">
         <div>
           Showing {rows.length} of {total} categories
