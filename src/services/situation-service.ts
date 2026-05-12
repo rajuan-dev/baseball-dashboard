@@ -24,10 +24,17 @@ const mapSituation = (item: Record<string, unknown>): Situation => ({
 })
 
 export const situationService = {
-  getAll: async (): Promise<Situation[]> =>
-    unwrap(api.get('/situations')).then((items) =>
-      (items as Record<string, unknown>[]).map(mapSituation),
-    ),
+  getAll: async (): Promise<Situation[]> => {
+    const firstPage = await situationService.getPage({ page: 1, limit: 100 })
+    const items = [...firstPage.items]
+
+    for (let page = 2; page <= firstPage.pagination.totalPages; page += 1) {
+      const nextPage = await situationService.getPage({ page, limit: 100 })
+      items.push(...nextPage.items)
+    }
+
+    return items
+  },
   getPage: async (query: { page?: number; limit?: number; featured?: string; search?: string }) =>
     unwrapPaginated<Record<string, unknown>>(
       api.get('/situations', { params: query }),

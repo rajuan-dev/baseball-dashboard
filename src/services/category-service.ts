@@ -36,11 +36,20 @@ const mapCategory = (item: Record<string, unknown>): Category => ({
   totalDrills: Number(item.totalDrills),
 })
 
+const fetchAllCategoryPages = async () => {
+  const firstPage = await categoryService.getPage({ page: 1, limit: 100 })
+  const items = [...firstPage.items]
+
+  for (let page = 2; page <= firstPage.pagination.totalPages; page += 1) {
+    const nextPage = await categoryService.getPage({ page, limit: 100 })
+    items.push(...nextPage.items)
+  }
+
+  return items
+}
+
 export const categoryService = {
-  getAll: async (): Promise<Category[]> =>
-    unwrap(api.get('/drill-categories')).then((items) =>
-      (items as Record<string, unknown>[]).map(mapCategory),
-    ),
+  getAll: async (): Promise<Category[]> => fetchAllCategoryPages(),
   getPage: async (query: CategoryQuery) =>
     unwrapPaginated<Record<string, unknown>>(
       api.get('/drill-categories', { params: query }),

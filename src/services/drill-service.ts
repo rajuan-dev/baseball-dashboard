@@ -82,11 +82,20 @@ const mapDrill = (item: Record<string, unknown>): DrillRow => ({
   categoryName: toStringValue(item.categoryName),
 })
 
+const fetchAllDrillPages = async () => {
+  const firstPage = await drillService.getPage({ page: 1, limit: 100 })
+  const items = [...firstPage.items]
+
+  for (let page = 2; page <= firstPage.pagination.totalPages; page += 1) {
+    const nextPage = await drillService.getPage({ page, limit: 100 })
+    items.push(...nextPage.items)
+  }
+
+  return items
+}
+
 export const drillService = {
-  getAll: async (): Promise<DrillRow[]> =>
-    unwrap(api.get('/drills')).then((items) =>
-      (items as Record<string, unknown>[]).map(mapDrill),
-    ),
+  getAll: async (): Promise<DrillRow[]> => fetchAllDrillPages(),
   getPage: async (query: DrillQuery) =>
     unwrapPaginated<Record<string, unknown>>(
       api.get('/drills', { params: query }),
