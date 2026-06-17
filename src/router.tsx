@@ -32,39 +32,46 @@ const Protected = ({ children }: { children: ReactNode }) => {
   return <>{children}</>
 }
 
-export const router = createBrowserRouter([
+const adminBasePath = import.meta.env.VITE_APP_BASE_PATH?.replace(/\/+$/, '') || '/admin'
+
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/auth',
+      element: <AuthLayout />,
+      children: [
+        { path: 'login', element: <LoginPage /> },
+        { path: 'forgot-password', element: <ForgotPasswordPage /> },
+        { path: 'otp-verification', element: <OtpVerificationPage /> },
+        { path: 'reset-password', element: <ResetPasswordPage /> },
+      ],
+    },
+    {
+      path: '/',
+      element: (
+        <Protected>
+          <App />
+        </Protected>
+      ),
+      children: [
+        { index: true, element: <Navigate replace to="/dashboard" /> },
+        { path: 'dashboard', element: <DashboardOverviewPage /> },
+        { path: 'notifications', element: <NotificationsPage /> },
+        { path: 'drills', element: <DrillManagementPage /> },
+        { path: 'drills/categories', element: <DrillCategoriesPage /> },
+        { path: 'reports', element: <ReportsPage /> },
+        { path: 'earnings', element: <EarningsPage /> },
+        { path: 'situations', element: <SituationsPage /> },
+        // Hidden for now. Keep the route available in code for future re-enable.
+        // { path: 'create-admin', element: <CreateAdminPage /> },
+        { path: 'profile', element: <ProfilePage /> },
+        { path: 'settings', element: <SettingsPage /> },
+        { path: 'settings/change-password', element: <ChangePasswordPage /> },
+        { path: 'settings/:section', element: <ContentEditorPage /> },
+      ],
+    },
+  ],
   {
-    path: '/auth',
-    element: <AuthLayout />,
-    children: [
-      { path: 'login', element: <LoginPage /> },
-      { path: 'forgot-password', element: <ForgotPasswordPage /> },
-      { path: 'otp-verification', element: <OtpVerificationPage /> },
-      { path: 'reset-password', element: <ResetPasswordPage /> },
-    ],
+    basename: adminBasePath,
   },
-  {
-    path: '/',
-    element: (
-      <Protected>
-        <App />
-      </Protected>
-    ),
-    children: [
-      { index: true, element: <Navigate replace to="/dashboard" /> },
-      { path: 'dashboard', element: <DashboardOverviewPage /> },
-      { path: 'notifications', element: <NotificationsPage /> },
-      { path: 'drills', element: <DrillManagementPage /> },
-      { path: 'drills/categories', element: <DrillCategoriesPage /> },
-      { path: 'reports', element: <ReportsPage /> },
-      { path: 'earnings', element: <EarningsPage /> },
-      { path: 'situations', element: <SituationsPage /> },
-      // Hidden for now. Keep the route available in code for future re-enable.
-      // { path: 'create-admin', element: <CreateAdminPage /> },
-      { path: 'profile', element: <ProfilePage /> },
-      { path: 'settings', element: <SettingsPage /> },
-      { path: 'settings/change-password', element: <ChangePasswordPage /> },
-      { path: 'settings/:section', element: <ContentEditorPage /> },
-    ],
-  },
-])
+)
