@@ -1,5 +1,10 @@
 export type AccessLevel = 'Free' | 'Premium'
 
+export type EquipmentItem = {
+  name: string
+  link?: string | null
+}
+
 export type Category = {
   id: string
   name: string
@@ -29,7 +34,7 @@ export type Drill = {
   coverPhotoUrl?: string
   imageUrl?: string
   steps: string[]
-  equipment: string[]
+  equipment: EquipmentItem[]
   focusPoints: { title: string; description: string }[]
   accessLevel: AccessLevel
   createdAt: string
