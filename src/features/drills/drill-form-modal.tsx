@@ -139,15 +139,10 @@ const toRows = (items?: string[]) =>
 
 const toEquipmentRows = (items?: Drill['equipment']) =>
   items?.length
-    ? items.map((item) => {
-        if (typeof item === 'string') {
-          return { name: item.trim(), link: '' }
-        }
-        return {
-          name: item.name?.trim() ?? '',
-          link: item.link?.trim() ?? '',
-        }
-      })
+    ? items.map((item) => ({
+        name: item.name?.trim() ?? '',
+        link: item.link?.trim() ?? '',
+      }))
     : [emptyEquipmentRow]
 
 const toFocusRows = (items?: Drill['focusPoints']) =>

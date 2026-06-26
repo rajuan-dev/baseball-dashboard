@@ -75,7 +75,7 @@ const drills: Drill[] = [
     cover: placeholderCover,
     listIcon: 'baseball-outline',
     steps: ['Load into an athletic base.', 'Rotate through contact.', 'Finish balanced.'],
-    equipment: ['Baseball bat', 'Batting helmet', 'Baseballs'],
+    equipment: [{ name: 'Baseball bat' }, { name: 'Batting helmet' }, { name: 'Baseballs' }],
     focusPoints: [
       { title: 'Lower half', description: 'Drive from the ground up.' },
       { title: 'Finish', description: 'Stay balanced after contact.' },
@@ -92,7 +92,7 @@ const drills: Drill[] = [
     cover: placeholderCover,
     listIcon: 'flame-outline',
     steps: ['Receive with clean hands.', 'Transfer quickly.', 'Throw through the target.'],
-    equipment: ['Catcher gear', 'Baseballs', 'Stopwatch'],
+    equipment: [{ name: 'Catcher gear' }, { name: 'Baseballs' }, { name: 'Stopwatch' }],
     focusPoints: [
       { title: 'Transfer speed', description: 'Keep the exchange compact.' },
       { title: 'Footwork', description: 'Gain ground toward second.' },
@@ -109,7 +109,7 @@ const drills: Drill[] = [
     cover: placeholderCover,
     listIcon: 'ellipse-outline',
     steps: ['Set four command targets.', 'Throw five pitches per target.', 'Track misses after each round.'],
-    equipment: ['Baseballs', 'Strike zone target', 'Clipboard'],
+    equipment: [{ name: 'Baseballs' }, { name: 'Strike zone target' }, { name: 'Clipboard' }],
     focusPoints: [
       { title: 'Intent', description: 'Commit to the target before delivery.' },
       { title: 'Adjustment', description: 'Correct misses immediately.' },
@@ -126,7 +126,7 @@ const drills: Drill[] = [
     cover: placeholderCover,
     listIcon: 'shield-outline',
     steps: ['Step off the rubber.', 'Take one controlled breath.', 'Lock onto the next pitch plan.'],
-    equipment: ['Practice mound', 'Baseballs'],
+    equipment: [{ name: 'Practice mound' }, { name: 'Baseballs' }],
     focusPoints: [
       { title: 'Breathing', description: 'Slow the game down before the next pitch.' },
       { title: 'Routine', description: 'Repeat the same reset every time.' },
