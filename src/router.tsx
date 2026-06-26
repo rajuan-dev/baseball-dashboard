@@ -32,7 +32,10 @@ const Protected = ({ children }: { children: ReactNode }) => {
   return <>{children}</>
 }
 
-const adminBasePath = import.meta.env.VITE_APP_BASE_PATH?.replace(/\/+$/, '') || '/admin'
+const configuredBasePath = import.meta.env.VITE_APP_BASE_PATH?.trim()
+const adminBasePath = configuredBasePath
+  ? configuredBasePath.replace(/\/+$/, '') || '/'
+  : '/'
 
 export const router = createBrowserRouter(
   [
