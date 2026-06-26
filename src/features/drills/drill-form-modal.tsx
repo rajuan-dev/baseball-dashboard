@@ -26,7 +26,19 @@ const schema = z.object({
     .optional(),
   listIcon: z.string().min(1, 'List icon is required'),
   accessLevel: z.enum(['Free', 'Premium']),
-  equipment: z.array(z.object({ value: z.string() })),
+  equipment: z.array(
+    z.object({
+      name: z.string().trim(),
+      link: z
+        .string()
+        .trim()
+        .refine((val) => !val || /^https?:\/\/.+/.test(val), {
+          message: 'Must be a valid URL starting with http:// or https://',
+        })
+        .optional()
+        .nullable(),
+    })
+  ),
   steps: z.array(z.object({ value: z.string() })),
   focusPoints: z.array(
     z.object({
@@ -35,33 +47,15 @@ const schema = z.object({
     }),
   ),
 }).superRefine((values, ctx) => {
-  if (!values.equipment.some((item) => item.value.trim())) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Add at least one equipment item',
-      path: ['equipment'],
-    })
-  }
-
-  if (!values.steps.some((item) => item.value.trim())) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Add at least one step direction',
-      path: ['steps'],
-    })
-  }
-
-  if (
-    !values.focusPoints.some(
-      (item) => item.title.trim() && item.description.trim(),
-    )
-  ) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Add at least one complete focus point',
-      path: ['focusPoints'],
-    })
-  }
+  values.equipment.forEach((item, index) => {
+    if (item.link?.trim() && !item.name.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Name is required when link is provided',
+        path: ['equipment', index, 'name'],
+      })
+    }
+  })
 })
 
 type DrillFormValues = z.infer<typeof schema>
@@ -138,8 +132,23 @@ const toYouTubeEmbedUrl = (value?: string | null) => {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null
 }
 
+const emptyEquipmentRow = { name: '', link: '' }
+
 const toRows = (items?: string[]) =>
   items?.length ? items.map((value) => ({ value })) : [emptyTextRow]
+
+const toEquipmentRows = (items?: Drill['equipment']) =>
+  items?.length
+    ? items.map((item) => {
+        if (typeof item === 'string') {
+          return { name: item.trim(), link: '' }
+        }
+        return {
+          name: item.name?.trim() ?? '',
+          link: item.link?.trim() ?? '',
+        }
+      })
+    : [emptyEquipmentRow]
 
 const toFocusRows = (items?: Drill['focusPoints']) =>
   items?.length
@@ -151,6 +160,14 @@ const toFocusRows = (items?: Drill['focusPoints']) =>
 
 const cleanTextRows = (items: { value: string }[]) =>
   items.map((item) => item.value.trim()).filter(Boolean)
+
+const cleanEquipmentRows = (items: { name: string; link?: string | null }[]) =>
+  items
+    .map((item) => ({
+      name: item.name.trim(),
+      link: item.link?.trim() || null,
+    }))
+    .filter((item) => item.name)
 
 const cleanFocusRows = (items: { title: string; description: string }[]) =>
   items
@@ -188,7 +205,7 @@ export const DrillFormModal = ({
       youtubeUrl: '',
       listIcon: 'baseball-outline',
       accessLevel: 'Free',
-      equipment: [emptyTextRow],
+      equipment: [emptyEquipmentRow],
       steps: [emptyTextRow],
       focusPoints: [emptyFocusPoint],
     },
@@ -216,7 +233,7 @@ export const DrillFormModal = ({
         youtubeUrl: initialData?.youtubeUrl ?? '',
         listIcon: initialData?.listIcon ?? 'baseball-outline',
         accessLevel: initialData?.accessLevel ?? 'Free',
-        equipment: toRows(initialData?.equipment),
+        equipment: toEquipmentRows(initialData?.equipment),
         steps: toRows(initialData?.steps),
         focusPoints: toFocusRows(initialData?.focusPoints),
       })
@@ -232,7 +249,7 @@ export const DrillFormModal = ({
       youtubeUrl: values.youtubeUrl?.trim() || null,
       listIcon: values.listIcon,
       accessLevel: values.accessLevel,
-      equipment: cleanTextRows(values.equipment),
+      equipment: cleanEquipmentRows(values.equipment),
       steps: cleanTextRows(values.steps),
       focusPoints: cleanFocusRows(values.focusPoints),
     })
@@ -375,7 +392,7 @@ export const DrillFormModal = ({
             </div>
             <Button
               className="h-9 rounded-xl px-3"
-              onClick={() => equipmentFields.append({ value: '' })}
+              onClick={() => equipmentFields.append({ name: '', link: '' })}
               type="button"
               variant="secondary"
             >
@@ -383,22 +400,43 @@ export const DrillFormModal = ({
               Add
             </Button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {errors.equipment?.message ? (
               <p className="text-xs font-medium text-red-500">
                 {errors.equipment.message}
               </p>
             ) : null}
             {equipmentFields.fields.map((field, index) => (
-              <div className="flex items-start gap-2" key={field.id}>
-                <Input
-                  className="h-11 rounded-xl border-0 bg-[#efeced] text-[15px]"
-                  placeholder="Baseball bat"
-                  {...register(`equipment.${index}.value`)}
-                />
+              <div
+                className="grid gap-2 rounded-2xl bg-[#f7f4ef] p-3 md:grid-cols-[0.8fr_1.2fr_auto]"
+                key={field.id}
+              >
+                <div className="space-y-1">
+                  <Input
+                    className="h-11 rounded-xl border-0 bg-white text-[15px]"
+                    placeholder="Baseball bat"
+                    {...register(`equipment.${index}.name`)}
+                  />
+                  {errors.equipment?.[index]?.name?.message ? (
+                    <p className="text-[11px] font-medium text-red-500 pl-1">
+                      {errors.equipment[index].name.message}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    className="h-11 rounded-xl border-0 bg-white text-[15px]"
+                    placeholder="Affiliate Link / URL (Optional)"
+                    {...register(`equipment.${index}.link`)}
+                  />
+                  {errors.equipment?.[index]?.link?.message ? (
+                    <p className="text-[11px] font-medium text-red-500 pl-1">
+                      {errors.equipment[index].link.message}
+                    </p>
+                  ) : null}
+                </div>
                 <button
-                  className="mt-1 rounded-xl p-3 text-red-500 transition hover:bg-red-50 disabled:opacity-40"
-                  disabled={equipmentFields.fields.length === 1}
+                  className="rounded-xl p-3 text-red-500 transition hover:bg-red-50"
                   onClick={() => equipmentFields.remove(index)}
                   type="button"
                 >
@@ -442,8 +480,7 @@ export const DrillFormModal = ({
                   {...register(`steps.${index}.value`)}
                 />
                 <button
-                  className="mt-1 rounded-xl p-3 text-red-500 transition hover:bg-red-50 disabled:opacity-40"
-                  disabled={stepFields.fields.length === 1}
+                  className="mt-1 rounded-xl p-3 text-red-500 transition hover:bg-red-50"
                   onClick={() => stepFields.remove(index)}
                   type="button"
                 >
@@ -495,8 +532,7 @@ export const DrillFormModal = ({
                   {...register(`focusPoints.${index}.description`)}
                 />
                 <button
-                  className="rounded-xl p-3 text-red-500 transition hover:bg-red-50 disabled:opacity-40"
-                  disabled={focusFields.fields.length === 1}
+                  className="rounded-xl p-3 text-red-500 transition hover:bg-red-50"
                   onClick={() => focusFields.remove(index)}
                   type="button"
                 >

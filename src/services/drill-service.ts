@@ -37,6 +37,30 @@ const toStringArray = (value: unknown) =>
         .filter(Boolean)
     : []
 
+const toEquipment = (value: unknown): Drill['equipment'] =>
+  Array.isArray(value)
+    ? value
+        .map((item) => {
+          if (typeof item === 'string') {
+            return {
+              name: item.trim(),
+              link: null,
+            }
+          }
+
+          if (item && typeof item === 'object') {
+            const eq = item as Record<string, unknown>
+            return {
+              name: toStringValue(eq.name).trim(),
+              link: toStringValue(eq.link).trim() || null,
+            }
+          }
+
+          return { name: '', link: null }
+        })
+        .filter((item) => item.name)
+    : []
+
 const toFocusPoints = (value: unknown): Drill['focusPoints'] =>
   Array.isArray(value)
     ? value
@@ -75,7 +99,7 @@ const mapDrill = (item: Record<string, unknown>): DrillRow => ({
   coverPhotoUrl: toStringValue(item.coverPhotoUrl),
   imageUrl: toStringValue(item.imageUrl),
   steps: toStringArray(item.steps),
-  equipment: toStringArray(item.equipment),
+  equipment: toEquipment(item.equipment),
   focusPoints: toFocusPoints(item.focusPoints),
   accessLevel: normalizeAccessLevel(String(item.accessLevel)),
   createdAt: toStringValue(item.createdAt),
