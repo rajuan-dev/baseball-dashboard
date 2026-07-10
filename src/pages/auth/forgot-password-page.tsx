@@ -21,7 +21,7 @@ export const ForgotPasswordPage = () => {
     formState: { errors },
   } = useForm<{ email: string }>({
     resolver: zodResolver(schema),
-    defaultValues: { email: 'mostain@gmail.com' },
+    defaultValues: { email: '' },
   })
 
   const mutation = useMutation({
@@ -48,7 +48,7 @@ export const ForgotPasswordPage = () => {
       <Input
         className="h-14 rounded-xl border-0"
         error={errors.email?.message}
-        placeholder="mostain@gamil.com"
+        placeholder="user@gamil.com"
         {...register('email')}
       />
       <Button className="h-14 rounded-xl" fullWidth size="lg" type="submit">

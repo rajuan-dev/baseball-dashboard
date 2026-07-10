@@ -17,8 +17,8 @@ const schema = z.object({
 type LoginValues = z.infer<typeof schema>
 
 const defaultAdminCredentials: LoginValues = {
-  email: 'admin@mariettabaseball.com',
-  password: 'admin@123',
+  email: '',
+  password: '',
 }
 
 export const LoginPage = () => {
@@ -53,7 +53,7 @@ export const LoginPage = () => {
         error={errors.email?.message}
         label="Email"
         labelClassName="text-white"
-        placeholder="mostain@gamil.com"
+        placeholder="user@gamil.com"
         {...register('email')}
       />
       <Input
