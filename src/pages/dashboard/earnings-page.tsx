@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Banknote, ReceiptText, ShoppingCart } from 'lucide-react'
 import { PriceManagementModal } from '@/features/earnings/price-management-modal'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
 import { Table, type Column } from '@/components/ui/table'
 import { earningService } from '@/services/earning-service'
+import { StatsCard } from '@/components/shared/stats-card'
 import type { Earning } from '@/types/entities'
-import { formatCurrency, formatDateTime } from '@/utils/format'
+import { formatCurrency, formatDateTime, formatNumber } from '@/utils/format'
 
 const pageSize = 10
 
@@ -14,15 +16,24 @@ export const EarningsPage = () => {
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [open, setOpen] = useState(false)
-  const { data } = useQuery({
+
+  const { data, isLoading } = useQuery({
     queryKey: ['earnings', page],
     queryFn: () => earningService.getPage({ page, limit: pageSize }),
+  })
+
+  const { data: summary, isLoading: isSummaryLoading } = useQuery({
+    queryKey: ['earnings-summary'],
+    queryFn: earningService.getSummary,
   })
 
   const updateMutation = useMutation({
     mutationFn: (price: number) => earningService.updatePrice(price),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['earnings'] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['earnings'] }),
+        queryClient.invalidateQueries({ queryKey: ['earnings-summary'] }),
+      ])
       setOpen(false)
     },
   })
@@ -41,10 +52,19 @@ export const EarningsPage = () => {
     },
     {
       key: 'purchaseType',
-      header: 'Purchase Type',
+      header: 'Access',
       render: (row) => (
         <span className="inline-flex rounded-full bg-[#f6d4c8] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#7d4a2b]">
           {row.purchaseType}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (row) => (
+        <span className="inline-flex rounded-full bg-[#fff4e8] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-orange">
+          {row.status ?? 'paid'}
         </span>
       ),
     },
@@ -69,10 +89,43 @@ export const EarningsPage = () => {
   return (
     <div className="space-y-6 px-1">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-[30px] font-medium text-brand-ink">Transactions</h1>
+        <div>
+          <h1 className="text-[30px] font-medium text-brand-ink">Transactions</h1>
+          <p className="mt-1 text-sm text-brand-body">
+            Review recorded premium purchase activity and the current unlock price from backend.
+          </p>
+        </div>
         <Button onClick={() => setOpen(true)}>Price Management</Button>
       </div>
-      <Table columns={columns} rows={rows} />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <StatsCard
+          icon={ShoppingCart}
+          loading={isSummaryLoading}
+          title="Total Purchases"
+          value={summary ? formatNumber(summary.totalPurchases) : ''}
+        />
+        <StatsCard
+          icon={Banknote}
+          loading={isSummaryLoading}
+          title="Total Revenue"
+          value={summary ? formatCurrency(summary.totalRevenue) : ''}
+        />
+        <StatsCard
+          dark
+          icon={ReceiptText}
+          loading={isLoading}
+          title="Current Unlock Price"
+          value={formatCurrency(data?.fullUnlockPrice ?? 0)}
+        />
+      </div>
+
+      <Table
+        columns={columns}
+        rows={rows}
+        emptyMessage="No recorded transactions yet."
+      />
+
       <div className="flex flex-col gap-4 rounded-b-[18px] bg-[#f7f4ef] px-6 py-4 text-sm text-[#686f80] sm:flex-row sm:items-center sm:justify-between">
         <div>
           Showing {rows.length} of {total} transactions
@@ -83,6 +136,7 @@ export const EarningsPage = () => {
           totalPages={totalPages}
         />
       </div>
+
       <PriceManagementModal
         onClose={() => setOpen(false)}
         onSubmit={(price) => updateMutation.mutateAsync(price)}

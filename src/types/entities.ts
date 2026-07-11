@@ -71,6 +71,8 @@ export type Earning = {
   purchaseType: string
   amount: number
   date: string
+  status?: string
+  paymentMethod?: string
 }
 
 export type AdminUser = {
@@ -99,9 +101,11 @@ export type NotificationItem = {
 
 export type DashboardOverview = {
   totalPurchases: number
+  totalRevenue: number
   monthlyRevenue: number
   categoryCount: number
   totalUsers?: number
+  premiumUsers?: number
   totalFreeDrills?: number
   totalPremiumDrills?: number
   recentActivity: Earning[]

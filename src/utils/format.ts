@@ -1,12 +1,14 @@
+const safeNumber = (value: number) => (Number.isFinite(value) ? value : 0)
+
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 2,
-  }).format(value)
+  }).format(safeNumber(value))
 
 export const formatNumber = (value: number) =>
-  new Intl.NumberFormat('en-US').format(value)
+  new Intl.NumberFormat('en-US').format(safeNumber(value))
 
 export const formatDateTime = (value: string) =>
   new Intl.DateTimeFormat('en-US', {
