@@ -209,6 +209,7 @@ export const DrillManagementPage = () => {
           columns={columns}
           emptyMessage="No drills found. Drills added from the dashboard will appear here."
           rows={rows}
+          gridTemplate="2fr 1.2fr 0.8fr 1fr 0.8fr"
         />
       )}
       <div className="flex flex-col gap-4 rounded-b-[18px] bg-[#f7f4ef] px-6 py-4 text-sm text-[#686f80] sm:flex-row sm:items-center sm:justify-between">

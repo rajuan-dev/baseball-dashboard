@@ -46,7 +46,9 @@ export const EarningsPage = () => {
       key: 'userEmail',
       header: 'User Email',
       render: (row) => (
-        <span className="font-semibold text-brand-ink">{row.userEmail}</span>
+        <span className="block truncate font-semibold text-brand-ink" title={row.userEmail}>
+          {row.userEmail}
+        </span>
       ),
     },
     {
@@ -139,6 +141,7 @@ export const EarningsPage = () => {
         columns={columns}
         rows={rows}
         emptyMessage="No recorded transactions yet."
+        gridTemplate="2.5fr 1.2fr 1.2fr 0.8fr 0.8fr 1.2fr"
       />
 
       <div className="flex flex-col gap-4 rounded-b-[18px] bg-[#f7f4ef] px-6 py-4 text-sm text-[#686f80] sm:flex-row sm:items-center sm:justify-between">

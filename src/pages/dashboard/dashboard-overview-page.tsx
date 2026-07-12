@@ -10,9 +10,11 @@ import { formatCurrency, formatDateTime, formatNumber } from '@/utils/format'
 const columns: Column<Earning>[] = [
   {
     key: 'userEmail',
-    header: 'User Email',
+    header: 'User Account',
     render: (row) => (
-      <span className="font-semibold text-brand-ink">{row.userEmail}</span>
+      <span className="block truncate font-semibold text-brand-ink" title={row.userEmail}>
+        {row.userEmail}
+      </span>
     ),
   },
   {
@@ -119,6 +121,7 @@ export const DashboardOverviewPage = () => {
             columns={columns}
             rows={data?.recentActivity ?? []}
             emptyMessage="No recorded premium purchases yet."
+            gridTemplate="2.5fr 1.2fr 1.2fr 0.8fr 0.8fr 1.2fr"
           />
         )}
       </section>

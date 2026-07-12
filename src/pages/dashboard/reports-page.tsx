@@ -71,7 +71,11 @@ export const ReportsPage = () => {
     {
       key: 'email',
       header: 'Email',
-      render: (row) => <span>{row.email}</span>,
+      render: (row) => (
+        <span className="block truncate font-medium text-brand-ink" title={row.email}>
+          {row.email}
+        </span>
+      ),
     },
     {
       key: 'createdAt',
@@ -157,7 +161,7 @@ export const ReportsPage = () => {
           <option value="100-500">100-500</option>
         </Select>
       </div>
-      <Table columns={columns} rows={rows} />
+      <Table columns={columns} rows={rows} gridTemplate="0.5fr 1.8fr 2fr 1.2fr 1fr 1fr 0.5fr" />
       <div className="flex flex-col gap-4 rounded-b-[18px] border border-t-0 border-[#ebe7e0] bg-white px-6 py-4 text-sm text-[#686f80] sm:flex-row sm:items-center sm:justify-between">
         <div>
           Showing {rows.length} of {total} results
