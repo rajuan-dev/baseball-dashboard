@@ -1,11 +1,22 @@
 const safeNumber = (value: number) => (Number.isFinite(value) ? value : 0)
 
-export const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(safeNumber(value))
+export const formatCurrency = (value: number, currency = 'USD') => {
+  const normalizedCurrency = currency?.trim()?.toUpperCase() || 'USD'
+
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: normalizedCurrency,
+      maximumFractionDigits: 2,
+    }).format(safeNumber(value))
+  } catch {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2,
+    }).format(safeNumber(value))
+  }
+}
 
 export const formatNumber = (value: number) =>
   new Intl.NumberFormat('en-US').format(safeNumber(value))

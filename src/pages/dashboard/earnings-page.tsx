@@ -60,6 +60,22 @@ export const EarningsPage = () => {
       ),
     },
     {
+      key: 'source',
+      header: 'Source',
+      render: (row) => {
+        const sourceLabel =
+          row.source === 'revenuecat'
+            ? `RevenueCat${row.environment ? ` ${row.environment}` : ''}`
+            : row.source ?? 'manual'
+
+        return (
+          <span className="inline-flex rounded-full bg-[#eef2ff] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-navy">
+            {sourceLabel}
+          </span>
+        )
+      },
+    },
+    {
       key: 'status',
       header: 'Status',
       render: (row) => (
@@ -73,7 +89,7 @@ export const EarningsPage = () => {
       header: 'Amount',
       render: (row) => (
         <span className="font-bold text-brand-orange">
-          {formatCurrency(row.amount)}
+          {formatCurrency(row.amount, row.currency ?? 'USD')}
         </span>
       ),
     },
@@ -95,7 +111,7 @@ export const EarningsPage = () => {
             Review recorded premium purchase activity and the current unlock price from backend.
           </p>
         </div>
-        <Button onClick={() => setOpen(true)}>Price Management</Button>
+        {/* <Button onClick={() => setOpen(true)}>Price Management</Button> */}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

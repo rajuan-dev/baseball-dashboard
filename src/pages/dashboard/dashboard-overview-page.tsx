@@ -25,6 +25,22 @@ const columns: Column<Earning>[] = [
     ),
   },
   {
+    key: 'source',
+    header: 'Source',
+    render: (row) => {
+      const sourceLabel =
+        row.source === 'revenuecat'
+          ? `RevenueCat${row.environment ? ` ${row.environment}` : ''}`
+          : row.source ?? 'manual'
+
+      return (
+        <span className="inline-flex rounded-full bg-[#eef2ff] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-navy">
+          {sourceLabel}
+        </span>
+      )
+    },
+  },
+  {
     key: 'status',
     header: 'Status',
     render: (row) => (
@@ -38,7 +54,7 @@ const columns: Column<Earning>[] = [
     header: 'Amount',
     render: (row) => (
       <span className="font-bold text-brand-orange">
-        {formatCurrency(row.amount)}
+        {formatCurrency(row.amount, row.currency ?? 'USD')}
       </span>
     ),
   },
@@ -60,7 +76,7 @@ export const DashboardOverviewPage = () => {
   return (
     <div className="space-y-7 px-0.5 lg:px-1 xl:space-y-8 xl:px-1.5">
       <PageTitle
-        description="Track registered users, premium access adoption, and recorded purchase revenue from the current backend transaction system."
+        description="Track RevenueCat-linked users, premium access adoption, and recorded purchase revenue from synced transaction data."
         eyebrow="Subscription Overview"
         title="Users & Revenue"
       />
@@ -68,7 +84,7 @@ export const DashboardOverviewPage = () => {
         <StatsCard
           icon={Users}
           loading={isLoading}
-          title="Registered Users"
+          title="RevenueCat Users"
           value={data ? formatNumber(data.totalUsers ?? 0) : ''}
         />
         <StatsCard

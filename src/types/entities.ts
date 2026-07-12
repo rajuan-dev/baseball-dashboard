@@ -73,6 +73,10 @@ export type Earning = {
   date: string
   status?: string
   paymentMethod?: string
+  store?: string | null
+  environment?: string | null
+  currency?: string | null
+  source?: string
 }
 
 export type AdminUser = {
