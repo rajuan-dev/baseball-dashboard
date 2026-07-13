@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { Banknote, Crown, ShoppingCart, Users } from 'lucide-react'
+import { Banknote, Crown, ExternalLink, ShoppingCart, Users } from 'lucide-react'
 import { PageTitle } from '@/components/shared/page-title'
 import { StatsCard } from '@/components/shared/stats-card'
+import { Button } from '@/components/ui/button'
 import { Table, type Column } from '@/components/ui/table'
 import { dashboardService } from '@/services/dashboard-service'
 import type { Earning } from '@/types/entities'
@@ -81,6 +82,16 @@ export const DashboardOverviewPage = () => {
         description="Track RevenueCat-linked users, premium access adoption, and recorded purchase revenue from synced transaction data."
         eyebrow="Subscription Overview"
         title="Users & Revenue"
+        action={
+          <Button
+            variant="navy"
+            onClick={() => window.open('https://app.revenuecat.com/', '_blank', 'noopener,noreferrer')}
+            className="gap-2 shadow-sm"
+          >
+            <ExternalLink className="size-4" />
+            <span>RevenueCat Analytics</span>
+          </Button>
+        }
       />
       <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4 xl:gap-5">
         <StatsCard
